@@ -10,6 +10,7 @@ import (
 	"github.com/hay-kot/httpkit/errchain"
 	"github.com/hay-kot/httpkit/server"
 	"github.com/rs/zerolog/log"
+	"github.com/sysadminsmedia/homebox/backend/app/api/jobs"
 	"github.com/sysadminsmedia/homebox/backend/internal/core/services"
 	"github.com/sysadminsmedia/homebox/backend/internal/core/services/reporting/eventbus"
 	"github.com/sysadminsmedia/homebox/backend/internal/data/repo"
@@ -74,6 +75,10 @@ type V1Controller struct {
 	bus               *eventbus.EventBus
 	url               string
 	config            *config.Config
+	runner            interface {
+		StartJob() string
+		GetJobStatus(jobID string) (jobs.JobStatus, bool)
+	}
 }
 
 type (
@@ -98,13 +103,24 @@ type (
 	}
 )
 
-func NewControllerV1(svc *services.AllServices, repos *repo.AllRepos, bus *eventbus.EventBus, config *config.Config, options ...func(*V1Controller)) *V1Controller {
+func NewControllerV1(
+	svc *services.AllServices,
+	repos *repo.AllRepos,
+	bus *eventbus.EventBus,
+	config *config.Config,
+	runner interface {
+		StartJob() string
+		GetJobStatus(jobID string) (jobs.JobStatus, bool)
+	},
+	options ...func(*V1Controller),
+) *V1Controller {
 	ctrl := &V1Controller{
 		repo:              repos,
 		svc:               svc,
 		allowRegistration: true,
 		bus:               bus,
 		config:            config,
+		runner:            runner,
 	}
 
 	for _, opt := range options {

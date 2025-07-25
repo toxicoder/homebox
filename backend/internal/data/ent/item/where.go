@@ -1421,6 +1421,26 @@ func SoldNotesContainsFold(v string) predicate.Item {
 	return predicate.Item(sql.FieldContainsFold(FieldSoldNotes, v))
 }
 
+// ProcessingStatusEQ applies the EQ predicate on the "processing_status" field.
+func ProcessingStatusEQ(v ProcessingStatus) predicate.Item {
+	return predicate.Item(sql.FieldEQ(FieldProcessingStatus, v))
+}
+
+// ProcessingStatusNEQ applies the NEQ predicate on the "processing_status" field.
+func ProcessingStatusNEQ(v ProcessingStatus) predicate.Item {
+	return predicate.Item(sql.FieldNEQ(FieldProcessingStatus, v))
+}
+
+// ProcessingStatusIn applies the In predicate on the "processing_status" field.
+func ProcessingStatusIn(vs ...ProcessingStatus) predicate.Item {
+	return predicate.Item(sql.FieldIn(FieldProcessingStatus, vs...))
+}
+
+// ProcessingStatusNotIn applies the NotIn predicate on the "processing_status" field.
+func ProcessingStatusNotIn(vs ...ProcessingStatus) predicate.Item {
+	return predicate.Item(sql.FieldNotIn(FieldProcessingStatus, vs...))
+}
+
 // HasGroup applies the HasEdge predicate on the "group" edge.
 func HasGroup() predicate.Item {
 	return predicate.Item(func(s *sql.Selector) {

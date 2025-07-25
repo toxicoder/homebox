@@ -9,6 +9,8 @@ import (
 	"github.com/sysadminsmedia/homebox/backend/pkgs/mailer"
 )
 
+import "github.com/sysadminsmedia/homebox/backend/app/api/jobs"
+
 type app struct {
 	conf     *config.Config
 	mailer   mailer.Mailer
@@ -16,11 +18,13 @@ type app struct {
 	repos    *repo.AllRepos
 	services *services.AllServices
 	bus      *eventbus.EventBus
+	runner   *jobs.JobRunner
 }
 
 func new(conf *config.Config) *app {
 	s := &app{
-		conf: conf,
+		conf:   conf,
+		runner: jobs.NewJobRunner(),
 	}
 
 	s.mailer = mailer.Mailer{

@@ -585,6 +585,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/items/identify": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Identify an item",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image to upload",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/v1/items/identify/{job_id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Get the result of an item identification job",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/v1/items/import": {
             "post": {
                 "security": [
@@ -2566,6 +2629,14 @@ const docTemplate = `{
                     "description": "Notes holds the value of the \"notes\" field.",
                     "type": "string"
                 },
+                "processing_status": {
+                    "description": "ProcessingStatus holds the value of the \"processing_status\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/item.ProcessingStatus"
+                        }
+                    ]
+                },
                 "purchase_from": {
                     "description": "PurchaseFrom holds the value of the \"purchase_from\" field.",
                     "type": "string"
@@ -3082,6 +3153,21 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "item.ProcessingStatus": {
+            "type": "string",
+            "enum": [
+                "local_only",
+                "local_only",
+                "pending_enrichment",
+                "complete"
+            ],
+            "x-enum-varnames": [
+                "DefaultProcessingStatus",
+                "ProcessingStatusLocalOnly",
+                "ProcessingStatusPendingEnrichment",
+                "ProcessingStatusComplete"
+            ]
         },
         "itemfield.Type": {
             "type": "string",

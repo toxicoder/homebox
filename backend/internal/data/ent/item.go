@@ -68,6 +68,8 @@ type Item struct {
 	SoldPrice float64 `json:"sold_price,omitempty"`
 	// SoldNotes holds the value of the "sold_notes" field.
 	SoldNotes string `json:"sold_notes,omitempty"`
+	// ProcessingStatus holds the value of the "processing_status" field.
+	ProcessingStatus item.ProcessingStatus `json:"processing_status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ItemQuery when eager-loading is set.
 	Edges          ItemEdges `json:"edges"`
@@ -189,7 +191,7 @@ func (*Item) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case item.FieldQuantity, item.FieldAssetID:
 			values[i] = new(sql.NullInt64)
-		case item.FieldName, item.FieldDescription, item.FieldImportRef, item.FieldNotes, item.FieldSerialNumber, item.FieldModelNumber, item.FieldManufacturer, item.FieldWarrantyDetails, item.FieldPurchaseFrom, item.FieldSoldTo, item.FieldSoldNotes:
+		case item.FieldName, item.FieldDescription, item.FieldImportRef, item.FieldNotes, item.FieldSerialNumber, item.FieldModelNumber, item.FieldManufacturer, item.FieldWarrantyDetails, item.FieldPurchaseFrom, item.FieldSoldTo, item.FieldSoldNotes, item.FieldProcessingStatus:
 			values[i] = new(sql.NullString)
 		case item.FieldCreatedAt, item.FieldUpdatedAt, item.FieldWarrantyExpires, item.FieldPurchaseTime, item.FieldSoldTime:
 			values[i] = new(sql.NullTime)
@@ -366,6 +368,12 @@ func (i *Item) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				i.SoldNotes = value.String
 			}
+		case item.FieldProcessingStatus:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field processing_status", values[j])
+			} else if value.Valid {
+				i.ProcessingStatus = item.ProcessingStatus(value.String)
+			}
 		case item.ForeignKeys[0]:
 			if value, ok := values[j].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field group_items", values[j])
@@ -534,6 +542,9 @@ func (i *Item) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("sold_notes=")
 	builder.WriteString(i.SoldNotes)
+	builder.WriteString(", ")
+	builder.WriteString("processing_status=")
+	builder.WriteString(fmt.Sprintf("%v", i.ProcessingStatus))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -35,6 +35,13 @@ export enum ItemfieldType {
   TypeTime = "time",
 }
 
+export enum ItemProcessingStatus {
+  DefaultProcessingStatus = "local_only",
+  ProcessingStatusLocalOnly = "local_only",
+  ProcessingStatusPendingEnrichment = "pending_enrichment",
+  ProcessingStatusComplete = "complete",
+}
+
 export enum AuthrolesRole {
   DefaultRole = "user",
   RoleAdmin = "admin",
@@ -220,6 +227,8 @@ export interface EntItem {
   name: string;
   /** Notes holds the value of the "notes" field. */
   notes: string;
+  /** ProcessingStatus holds the value of the "processing_status" field. */
+  processing_status: ItemProcessingStatus;
   /** PurchaseFrom holds the value of the "purchase_from" field. */
   purchase_from: string;
   /** PurchasePrice holds the value of the "purchase_price" field. */
@@ -454,10 +463,6 @@ export interface EntUserEdges {
 export interface BarcodeProduct {
   barcode: string;
   imageBase64: string;
-  /**
-   * TODO: add image attachement
-   * TODO: add asin?
-   */
   imageURL: string;
   item: ItemCreate;
   manufacturer: string;

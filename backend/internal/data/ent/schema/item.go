@@ -96,6 +96,12 @@ func (Item) Fields() []ent.Field {
 		field.String("sold_notes").
 			MaxLen(1000).
 			Optional(),
+
+		// ------------------------------------
+		// AI Enrichment
+		field.Enum("processing_status").
+			Values("local_only", "pending_enrichment", "complete").
+			Default("local_only"),
 	}
 }
 

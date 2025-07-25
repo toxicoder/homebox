@@ -156,6 +156,7 @@ var (
 		{Name: "sold_to", Type: field.TypeString, Nullable: true},
 		{Name: "sold_price", Type: field.TypeFloat64, Default: 0},
 		{Name: "sold_notes", Type: field.TypeString, Nullable: true, Size: 1000},
+		{Name: "processing_status", Type: field.TypeEnum, Enums: []string{"local_only", "pending_enrichment", "complete"}, Default: "local_only"},
 		{Name: "group_items", Type: field.TypeUUID},
 		{Name: "item_children", Type: field.TypeUUID, Nullable: true},
 		{Name: "location_items", Type: field.TypeUUID, Nullable: true},
@@ -168,19 +169,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "items_groups_items",
-				Columns:    []*schema.Column{ItemsColumns[25]},
+				Columns:    []*schema.Column{ItemsColumns[26]},
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "items_items_children",
-				Columns:    []*schema.Column{ItemsColumns[26]},
+				Columns:    []*schema.Column{ItemsColumns[27]},
 				RefColumns: []*schema.Column{ItemsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "items_locations_items",
-				Columns:    []*schema.Column{ItemsColumns[27]},
+				Columns:    []*schema.Column{ItemsColumns[28]},
 				RefColumns: []*schema.Column{LocationsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

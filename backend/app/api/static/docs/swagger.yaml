@@ -283,6 +283,10 @@ definitions:
       notes:
         description: Notes holds the value of the "notes" field.
         type: string
+      processing_status:
+        allOf:
+        - $ref: '#/definitions/item.ProcessingStatus'
+        description: ProcessingStatus holds the value of the "processing_status" field.
       purchase_from:
         description: PurchaseFrom holds the value of the "purchase_from" field.
         type: string
@@ -634,6 +638,18 @@ definitions:
           $ref: '#/definitions/ent.Notifier'
         type: array
     type: object
+  item.ProcessingStatus:
+    enum:
+    - local_only
+    - local_only
+    - pending_enrichment
+    - complete
+    type: string
+    x-enum-varnames:
+    - DefaultProcessingStatus
+    - ProcessingStatusLocalOnly
+    - ProcessingStatusPendingEnrichment
+    - ProcessingStatusComplete
   itemfield.Type:
     enum:
     - text
@@ -2090,6 +2106,44 @@ paths:
       security:
       - Bearer: []
       summary: Get All Custom Field Values
+      tags:
+      - Items
+  /v1/items/identify:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Image to upload
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+      security:
+      - Bearer: []
+      summary: Identify an item
+      tags:
+      - Items
+  /v1/items/identify/{job_id}:
+    get:
+      parameters:
+      - description: Job ID
+        in: path
+        name: job_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - Bearer: []
+      summary: Get the result of an item identification job
       tags:
       - Items
   /v1/items/import:

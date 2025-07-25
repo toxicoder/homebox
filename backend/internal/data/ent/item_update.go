@@ -455,6 +455,20 @@ func (iu *ItemUpdate) ClearSoldNotes() *ItemUpdate {
 	return iu
 }
 
+// SetProcessingStatus sets the "processing_status" field.
+func (iu *ItemUpdate) SetProcessingStatus(is item.ProcessingStatus) *ItemUpdate {
+	iu.mutation.SetProcessingStatus(is)
+	return iu
+}
+
+// SetNillableProcessingStatus sets the "processing_status" field if the given value is not nil.
+func (iu *ItemUpdate) SetNillableProcessingStatus(is *item.ProcessingStatus) *ItemUpdate {
+	if is != nil {
+		iu.SetProcessingStatus(*is)
+	}
+	return iu
+}
+
 // SetGroupID sets the "group" edge to the Group entity by ID.
 func (iu *ItemUpdate) SetGroupID(id uuid.UUID) *ItemUpdate {
 	iu.mutation.SetGroupID(id)
@@ -790,6 +804,11 @@ func (iu *ItemUpdate) check() error {
 			return &ValidationError{Name: "sold_notes", err: fmt.Errorf(`ent: validator failed for field "Item.sold_notes": %w`, err)}
 		}
 	}
+	if v, ok := iu.mutation.ProcessingStatus(); ok {
+		if err := item.ProcessingStatusValidator(v); err != nil {
+			return &ValidationError{Name: "processing_status", err: fmt.Errorf(`ent: validator failed for field "Item.processing_status": %w`, err)}
+		}
+	}
 	if iu.mutation.GroupCleared() && len(iu.mutation.GroupIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Item.group"`)
 	}
@@ -927,6 +946,9 @@ func (iu *ItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if iu.mutation.SoldNotesCleared() {
 		_spec.ClearField(item.FieldSoldNotes, field.TypeString)
+	}
+	if value, ok := iu.mutation.ProcessingStatus(); ok {
+		_spec.SetField(item.FieldProcessingStatus, field.TypeEnum, value)
 	}
 	if iu.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1680,6 +1702,20 @@ func (iuo *ItemUpdateOne) ClearSoldNotes() *ItemUpdateOne {
 	return iuo
 }
 
+// SetProcessingStatus sets the "processing_status" field.
+func (iuo *ItemUpdateOne) SetProcessingStatus(is item.ProcessingStatus) *ItemUpdateOne {
+	iuo.mutation.SetProcessingStatus(is)
+	return iuo
+}
+
+// SetNillableProcessingStatus sets the "processing_status" field if the given value is not nil.
+func (iuo *ItemUpdateOne) SetNillableProcessingStatus(is *item.ProcessingStatus) *ItemUpdateOne {
+	if is != nil {
+		iuo.SetProcessingStatus(*is)
+	}
+	return iuo
+}
+
 // SetGroupID sets the "group" edge to the Group entity by ID.
 func (iuo *ItemUpdateOne) SetGroupID(id uuid.UUID) *ItemUpdateOne {
 	iuo.mutation.SetGroupID(id)
@@ -2028,6 +2064,11 @@ func (iuo *ItemUpdateOne) check() error {
 			return &ValidationError{Name: "sold_notes", err: fmt.Errorf(`ent: validator failed for field "Item.sold_notes": %w`, err)}
 		}
 	}
+	if v, ok := iuo.mutation.ProcessingStatus(); ok {
+		if err := item.ProcessingStatusValidator(v); err != nil {
+			return &ValidationError{Name: "processing_status", err: fmt.Errorf(`ent: validator failed for field "Item.processing_status": %w`, err)}
+		}
+	}
 	if iuo.mutation.GroupCleared() && len(iuo.mutation.GroupIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Item.group"`)
 	}
@@ -2182,6 +2223,9 @@ func (iuo *ItemUpdateOne) sqlSave(ctx context.Context) (_node *Item, err error) 
 	}
 	if iuo.mutation.SoldNotesCleared() {
 		_spec.ClearField(item.FieldSoldNotes, field.TypeString)
+	}
+	if value, ok := iuo.mutation.ProcessingStatus(); ok {
+		_spec.SetField(item.FieldProcessingStatus, field.TypeEnum, value)
 	}
 	if iuo.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
