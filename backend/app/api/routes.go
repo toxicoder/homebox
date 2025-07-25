@@ -53,6 +53,7 @@ func (a *app) mountRoutes(r *chi.Mux, chain *errchain.ErrChain, repos *repo.AllR
 		a.repos,
 		a.bus,
 		a.conf,
+		a.runner,
 		v1.WithMaxUploadSize(a.conf.Web.MaxUploadSize),
 		v1.WithRegistration(a.conf.Options.AllowRegistration),
 		v1.WithDemoStatus(a.conf.Demo), // Disable Password Change in Demo Mode
@@ -123,6 +124,9 @@ func (a *app) mountRoutes(r *chi.Mux, chain *errchain.ErrChain, repos *repo.AllR
 		r.Get("/items/export", chain.ToHandlerFunc(v1Ctrl.HandleItemsExport(), userMW...))
 		r.Get("/items/fields", chain.ToHandlerFunc(v1Ctrl.HandleGetAllCustomFieldNames(), userMW...))
 		r.Get("/items/fields/values", chain.ToHandlerFunc(v1Ctrl.HandleGetAllCustomFieldValues(), userMW...))
+
+		r.Post("/items/identify", chain.ToHandlerFunc(v1Ctrl.HandleItemIdentify(), userMW...))
+		r.Get("/items/identify/{job_id}", chain.ToHandlerFunc(v1Ctrl.HandleItemIdentifyResult(), userMW...))
 
 		r.Get("/items/{id}", chain.ToHandlerFunc(v1Ctrl.HandleItemGet(), userMW...))
 		r.Get("/items/{id}/path", chain.ToHandlerFunc(v1Ctrl.HandleItemFullPath(), userMW...))

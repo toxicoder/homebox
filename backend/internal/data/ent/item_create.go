@@ -355,6 +355,20 @@ func (ic *ItemCreate) SetNillableSoldNotes(s *string) *ItemCreate {
 	return ic
 }
 
+// SetProcessingStatus sets the "processing_status" field.
+func (ic *ItemCreate) SetProcessingStatus(is item.ProcessingStatus) *ItemCreate {
+	ic.mutation.SetProcessingStatus(is)
+	return ic
+}
+
+// SetNillableProcessingStatus sets the "processing_status" field if the given value is not nil.
+func (ic *ItemCreate) SetNillableProcessingStatus(is *item.ProcessingStatus) *ItemCreate {
+	if is != nil {
+		ic.SetProcessingStatus(*is)
+	}
+	return ic
+}
+
 // SetID sets the "id" field.
 func (ic *ItemCreate) SetID(u uuid.UUID) *ItemCreate {
 	ic.mutation.SetID(u)
@@ -568,6 +582,10 @@ func (ic *ItemCreate) defaults() {
 		v := item.DefaultSoldPrice
 		ic.mutation.SetSoldPrice(v)
 	}
+	if _, ok := ic.mutation.ProcessingStatus(); !ok {
+		v := item.DefaultProcessingStatus
+		ic.mutation.SetProcessingStatus(v)
+	}
 	if _, ok := ic.mutation.ID(); !ok {
 		v := item.DefaultID()
 		ic.mutation.SetID(v)
@@ -652,6 +670,14 @@ func (ic *ItemCreate) check() error {
 	if v, ok := ic.mutation.SoldNotes(); ok {
 		if err := item.SoldNotesValidator(v); err != nil {
 			return &ValidationError{Name: "sold_notes", err: fmt.Errorf(`ent: validator failed for field "Item.sold_notes": %w`, err)}
+		}
+	}
+	if _, ok := ic.mutation.ProcessingStatus(); !ok {
+		return &ValidationError{Name: "processing_status", err: errors.New(`ent: missing required field "Item.processing_status"`)}
+	}
+	if v, ok := ic.mutation.ProcessingStatus(); ok {
+		if err := item.ProcessingStatusValidator(v); err != nil {
+			return &ValidationError{Name: "processing_status", err: fmt.Errorf(`ent: validator failed for field "Item.processing_status": %w`, err)}
 		}
 	}
 	if len(ic.mutation.GroupIDs()) == 0 {
@@ -787,6 +813,10 @@ func (ic *ItemCreate) createSpec() (*Item, *sqlgraph.CreateSpec) {
 	if value, ok := ic.mutation.SoldNotes(); ok {
 		_spec.SetField(item.FieldSoldNotes, field.TypeString, value)
 		_node.SoldNotes = value
+	}
+	if value, ok := ic.mutation.ProcessingStatus(); ok {
+		_spec.SetField(item.FieldProcessingStatus, field.TypeEnum, value)
+		_node.ProcessingStatus = value
 	}
 	if nodes := ic.mutation.GroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

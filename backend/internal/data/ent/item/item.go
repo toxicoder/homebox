@@ -3,6 +3,7 @@
 package item
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -63,6 +64,8 @@ const (
 	FieldSoldPrice = "sold_price"
 	// FieldSoldNotes holds the string denoting the sold_notes field in the database.
 	FieldSoldNotes = "sold_notes"
+	// FieldProcessingStatus holds the string denoting the processing_status field in the database.
+	FieldProcessingStatus = "processing_status"
 	// EdgeGroup holds the string denoting the group edge name in mutations.
 	EdgeGroup = "group"
 	// EdgeParent holds the string denoting the parent edge name in mutations.
@@ -158,6 +161,7 @@ var Columns = []string{
 	FieldSoldTo,
 	FieldSoldPrice,
 	FieldSoldNotes,
+	FieldProcessingStatus,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "items"
@@ -233,6 +237,33 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// ProcessingStatus defines the type for the "processing_status" enum field.
+type ProcessingStatus string
+
+// ProcessingStatusLocalOnly is the default value of the ProcessingStatus enum.
+const DefaultProcessingStatus = ProcessingStatusLocalOnly
+
+// ProcessingStatus values.
+const (
+	ProcessingStatusLocalOnly         ProcessingStatus = "local_only"
+	ProcessingStatusPendingEnrichment ProcessingStatus = "pending_enrichment"
+	ProcessingStatusComplete          ProcessingStatus = "complete"
+)
+
+func (ps ProcessingStatus) String() string {
+	return string(ps)
+}
+
+// ProcessingStatusValidator is a validator for the "processing_status" field enum values. It is called by the builders before save.
+func ProcessingStatusValidator(ps ProcessingStatus) error {
+	switch ps {
+	case ProcessingStatusLocalOnly, ProcessingStatusPendingEnrichment, ProcessingStatusComplete:
+		return nil
+	default:
+		return fmt.Errorf("item: invalid enum value for processing_status field: %q", ps)
+	}
+}
 
 // OrderOption defines the ordering options for the Item queries.
 type OrderOption func(*sql.Selector)
@@ -360,6 +391,11 @@ func BySoldPrice(opts ...sql.OrderTermOption) OrderOption {
 // BySoldNotes orders the results by the sold_notes field.
 func BySoldNotes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSoldNotes, opts...).ToFunc()
+}
+
+// ByProcessingStatus orders the results by the processing_status field.
+func ByProcessingStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProcessingStatus, opts...).ToFunc()
 }
 
 // ByGroupField orders the results by group field.

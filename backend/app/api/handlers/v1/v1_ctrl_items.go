@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/hay-kot/httpkit/errchain"
 	"github.com/hay-kot/httpkit/server"
@@ -356,5 +357,43 @@ func (ctrl *V1Controller) HandleItemsExport() errchain.HandlerFunc {
 		writer := csv.NewWriter(w)
 		writer.Comma = ','
 		return writer.WriteAll(csvData)
+	}
+}
+
+// HandleItemIdentify godoc
+//
+//	@Summary	Identify an item
+//	@Tags		Items
+//	@Accept		multipart/form-data
+//	@Produce	json
+//	@Success	202
+//	@Param		image	formData	file	true	"Image to upload"
+//	@Router		/v1/items/identify [POST]
+//	@Security	Bearer
+func (ctrl *V1Controller) HandleItemIdentify() errchain.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		jobID := ctrl.runner.StartJob()
+		return server.JSON(w, http.StatusAccepted, map[string]string{"job_id": jobID})
+	}
+}
+
+// HandleItemIdentifyResult godoc
+//
+//	@Summary	Get the result of an item identification job
+//	@Tags		Items
+//	@Produce	json
+//	@Success	200
+//	@Param		job_id	path	string	true	"Job ID"
+//	@Router		/v1/items/identify/{job_id} [GET]
+//	@Security	Bearer
+func (ctrl *V1Controller) HandleItemIdentifyResult() errchain.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		jobID := chi.URLParam(r, "job_id")
+		status, ok := ctrl.runner.GetJobStatus(jobID)
+		if !ok {
+			return validate.NewRequestError(errors.New("job not found"), http.StatusNotFound)
+		}
+
+		return server.JSON(w, http.StatusOK, map[string]string{"status": string(status)})
 	}
 }

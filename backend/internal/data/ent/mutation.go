@@ -3532,6 +3532,7 @@ type ItemMutation struct {
 	sold_price                 *float64
 	addsold_price              *float64
 	sold_notes                 *string
+	processing_status          *item.ProcessingStatus
 	clearedFields              map[string]struct{}
 	group                      *uuid.UUID
 	clearedgroup               bool
@@ -4776,6 +4777,42 @@ func (m *ItemMutation) ResetSoldNotes() {
 	delete(m.clearedFields, item.FieldSoldNotes)
 }
 
+// SetProcessingStatus sets the "processing_status" field.
+func (m *ItemMutation) SetProcessingStatus(is item.ProcessingStatus) {
+	m.processing_status = &is
+}
+
+// ProcessingStatus returns the value of the "processing_status" field in the mutation.
+func (m *ItemMutation) ProcessingStatus() (r item.ProcessingStatus, exists bool) {
+	v := m.processing_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProcessingStatus returns the old "processing_status" field's value of the Item entity.
+// If the Item object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ItemMutation) OldProcessingStatus(ctx context.Context) (v item.ProcessingStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProcessingStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProcessingStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProcessingStatus: %w", err)
+	}
+	return oldValue.ProcessingStatus, nil
+}
+
+// ResetProcessingStatus resets all changes to the "processing_status" field.
+func (m *ItemMutation) ResetProcessingStatus() {
+	m.processing_status = nil
+}
+
 // SetGroupID sets the "group" edge to the Group entity by id.
 func (m *ItemMutation) SetGroupID(id uuid.UUID) {
 	m.group = &id
@@ -5197,7 +5234,7 @@ func (m *ItemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ItemMutation) Fields() []string {
-	fields := make([]string, 0, 24)
+	fields := make([]string, 0, 25)
 	if m.created_at != nil {
 		fields = append(fields, item.FieldCreatedAt)
 	}
@@ -5270,6 +5307,9 @@ func (m *ItemMutation) Fields() []string {
 	if m.sold_notes != nil {
 		fields = append(fields, item.FieldSoldNotes)
 	}
+	if m.processing_status != nil {
+		fields = append(fields, item.FieldProcessingStatus)
+	}
 	return fields
 }
 
@@ -5326,6 +5366,8 @@ func (m *ItemMutation) Field(name string) (ent.Value, bool) {
 		return m.SoldPrice()
 	case item.FieldSoldNotes:
 		return m.SoldNotes()
+	case item.FieldProcessingStatus:
+		return m.ProcessingStatus()
 	}
 	return nil, false
 }
@@ -5383,6 +5425,8 @@ func (m *ItemMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSoldPrice(ctx)
 	case item.FieldSoldNotes:
 		return m.OldSoldNotes(ctx)
+	case item.FieldProcessingStatus:
+		return m.OldProcessingStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown Item field %s", name)
 }
@@ -5559,6 +5603,13 @@ func (m *ItemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSoldNotes(v)
+		return nil
+	case item.FieldProcessingStatus:
+		v, ok := value.(item.ProcessingStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProcessingStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Item field %s", name)
@@ -5812,6 +5863,9 @@ func (m *ItemMutation) ResetField(name string) error {
 		return nil
 	case item.FieldSoldNotes:
 		m.ResetSoldNotes()
+		return nil
+	case item.FieldProcessingStatus:
+		m.ResetProcessingStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown Item field %s", name)
