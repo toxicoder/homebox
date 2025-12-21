@@ -357,3 +357,11 @@ func (svc *ItemService) ExportBillOfMaterialsCSV(ctx context.Context, gid uuid.U
 
 	return reporting.BillOfMaterialsCSV(items)
 }
+
+func (svc *ItemService) Search(ctx context.Context, gid uuid.UUID, search string, page, pageSize int) (repo.PaginationResult[repo.ItemSummary], error) {
+	return svc.repo.Items.QueryByGroup(ctx, gid, repo.ItemQuery{
+		Search:   search,
+		Page:     page,
+		PageSize: pageSize,
+	})
+}

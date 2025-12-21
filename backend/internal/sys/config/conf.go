@@ -31,6 +31,11 @@ type Config struct {
 	LabelMaker LabelMakerConf `yaml:"labelmaker"`
 	Thumbnail  Thumbnail      `yaml:"thumbnail"`
 	Barcode    BarcodeAPIConf `yaml:"barcode"`
+	MCP        MCPConf        `yaml:"mcp"`
+}
+
+type MCPConf struct {
+	Enabled bool `yaml:"enabled" conf:"default:false"`
 }
 
 type Options struct {

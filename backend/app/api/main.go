@@ -178,6 +178,10 @@ func run(cfg *config.Config) error {
 		services.WithCurrencies(currencies),
 	)
 
+	if cfg.MCP.Enabled {
+		return startMCPServer(app.services)
+	}
+
 	// =========================================================================
 	// Start Server
 
